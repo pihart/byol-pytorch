@@ -222,7 +222,7 @@ class BYOL(nn.Module, metaclass=PostInitCaller):
         
     def __post_init__(self):
         # get device of network and make wrapper same device
-        device = get_module_device(net)
+        device = get_module_device(self.net)
         self.to(device)
         
         # send a mock image tensor to instantiate singleton parameters
