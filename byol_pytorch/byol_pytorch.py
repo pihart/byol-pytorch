@@ -165,9 +165,15 @@ class NetWrapper(nn.Module):
         projection = projector(representation)
         return projection, representation
 
+class PostInitCaller(type):
+    def __call__(cls, *args, **kwargs):
+        obj = type.__call__(cls, *args, **kwargs)
+        obj.__post_init__()
+        return obj
+    
 # main class
 
-class BYOL(nn.Module):
+class BYOL(nn.Module, metaclass=PostInitCaller):
     def __init__(
         self,
         net,
@@ -213,13 +219,14 @@ class BYOL(nn.Module):
         self.target_ema_updater = EMA(moving_average_decay)
 
         self.online_predictor = MLP(projection_size, projection_size, projection_hidden_size)
-
+        
+    def __post_init__(self):
         # get device of network and make wrapper same device
         device = get_module_device(net)
         self.to(device)
-
+        
         # send a mock image tensor to instantiate singleton parameters
-        self.forward(torch.randn(2, n_channels, image_size, image_size, device=device))
+        self.forward(torch.randn(2, self.n_channels, self.image_size, self.image_size, device=device))
 
     @singleton('target_encoder')
     def _get_target_encoder(self):
