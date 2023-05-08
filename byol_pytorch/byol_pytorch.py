@@ -189,6 +189,8 @@ class BYOL(nn.Module, metaclass=PostInitCaller):
     ):
         super().__init__()
         self.net = net
+        self.image_size = image_size
+        self.n_channels = n_channels
 
         # default SimCLR augmentation
 
